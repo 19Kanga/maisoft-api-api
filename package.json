@@ -1,0 +1,25 @@
+{
+  "name": "maisoft-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon ./src/server.js",
+    "pretty": "prettier --write . ",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prisma:dev": "prisma migrate dev --name init"
+  },
+  "devDependencies": {
+    "eslint": "^8.35.0",
+    "nodemon": "^2.0.20",
+    "prettier": "^2.8.4",
+    "prisma": "^4.10.1"
+  },
+  "dependencies": {
+    "@prisma/client": "^4.10.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2"
+  }
+}
