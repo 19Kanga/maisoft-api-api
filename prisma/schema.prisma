@@ -7,8 +7,141 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserType {
+  CLIENT
+  ADMIN
+}
+
+enum Methode {
+  VISA
+  PAYPAL
+  UBA
+}
+
+enum OrderStatus {
+  FAILED
+  DELIVERED
+  CANCEL
+  PENDING
+}
+
+enum ProductStatus {
+  INSTOCK
+  OUTSTOCK
+}
+
 model User {
-  id String @id @default(uuid())
+  id         String    @id @default(uuid())
+  firstname  String
+  lastname   String
+  username   String    @unique
+  email      String    @unique
+  hash       String
+  type       UserType  @default(CLIENT)
+  address    String?
+  phone      String
+  country    String
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  Order      Order[]
+  Product    Product[]
 
   @@map("user")
+}
+
+model PayementMethode {
+  id          String   @id @default(uuid())
+  number      Int
+  cvv         String
+  fullname    String
+  expiry_date DateTime
+  type        Methode  @default(VISA)
+  Order       Order[]
+
+  @@map("payementMethode")
+}
+
+model Supplier {
+  id          String    @id @default(uuid())
+  name        String
+  email       String    @unique
+  phone       Int
+  Address     String
+  description String?
+  Product     Product[]
+
+  @@map("supplier")
+}
+
+model Order {
+  id              String          @id @default(uuid())
+  ref             String          @unique()
+  email           String
+  address         String
+  discount        Decimal
+  total_amount    Decimal
+  status          OrderStatus     @default(PENDING)
+  deliveryDate    DateTime
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  userId          String
+  user            User            @relation(fields: [userId], references: [id])
+  paymentMethodId String
+  paymentMethod   PayementMethode @relation(fields: [paymentMethodId], references: [id])
+
+  orderdetails OrderDetail[]
+
+  @@map("order")
+}
+
+model OrderDetail {
+  id       String  @id @default(uuid())
+  name     String
+  price    Decimal
+  quantity BigInt
+  orderId  String
+  order    Order   @relation(fields: [orderId], references: [id])
+
+  @@map("orderdetail")
+}
+
+model ProductCategory {
+  id          String @id @default(uuid())
+  name        String @unique
+  thumbnail   String
+  description String
+
+  producthascategory ProductHasCategory[]
+
+  @@map("productcategory")
+}
+
+model Product {
+  id          String        @id @default(uuid())
+  name        String        @unique
+  thumbnail   String
+  description String
+  price       Decimal
+  quantity    BigInt
+  status      ProductStatus
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  supplierId  String
+  supplier    Supplier      @relation(fields: [supplierId], references: [id])
+
+  producthascategory ProductHasCategory[]
+
+  @@map("product")
+}
+
+model ProductHasCategory {
+  id                String          @id @default(uuid())
+  productId         String
+  product           Product         @relation(fields: [productId], references: [id])
+  productCategoryId String
+  productCategory   ProductCategory @relation(fields: [productCategoryId], references: [id])
+
+  @@map("producthascategory")
 }
